@@ -1,47 +1,73 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="780" height="440" viewBox="0 0 780 440" xml:space="preserve">
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="510" viewBox="0 0 940 510" xml:space="preserve">
 <defs>
-  <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+  <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
     <polygon points="0 0, 10 3.5, 0 7" fill="#555"/>
   </marker>
-  <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+  <filter id="sh" x="-10%" y="-10%" width="120%" height="120%">
     <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.12"/>
   </filter>
 </defs>
-<rect width="780" height="440" fill="#f8f9fa"/>
-<rect x="20" y="20" width="220" height="55" rx="6" fill="#F39C12" filter="url(#shadow)"/>
-<text x="130" y="38" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="bold" fill="white">⚠ One master seed</text>
-<text x="130" y="54" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="white">controls all wallets</text>
-<text x="130" y="68" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="white">Back up securely</text>
-<rect x="265" y="20" width="250" height="62" rx="8" fill="#E74C3C" filter="url(#shadow)"/>
-<text x="390" y="41" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Master Seed (32 bytes)</text>
-<text x="390" y="61" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, monospace" font-size="11" fill="white" opacity="0.85">stored in KMS / Vault</text>
-<rect x="290" y="138" width="200" height="55" rx="8" fill="#2C3E50" filter="url(#shadow)"/>
-<text x="390" y="160" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">BIP32 Root Key  m/</text>
-<rect x="60" y="253" width="240" height="55" rx="8" fill="#3498DB" filter="url(#shadow)"/>
-<text x="180" y="275" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">EVM  m/44'/60'/0'/0/</text>
-<rect x="480" y="253" width="240" height="55" rx="8" fill="#9B59B6" filter="url(#shadow)"/>
-<text x="600" y="275" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Tron  m/44'/195'/0'/0/</text>
-<rect x="20" y="368" width="135" height="60" rx="8" fill="#27AE60" filter="url(#shadow)"/>
-<text x="87" y="390" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Index 0</text>
-<text x="87" y="410" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, monospace" font-size="11" fill="white" opacity="0.85">Eth / Arb / Base / BSC</text>
-<rect x="165" y="368" width="100" height="60" rx="8" fill="#27AE60" filter="url(#shadow)"/>
-<text x="215" y="398" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Index 1</text>
-<rect x="275" y="368" width="60" height="60" rx="8" fill="#27AE60" filter="url(#shadow)"/>
-<text x="305" y="398" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">…N</text>
-<rect x="480" y="368" width="115" height="60" rx="8" fill="#E67E22" filter="url(#shadow)"/>
-<text x="537" y="390" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Index 0</text>
-<text x="537" y="410" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, monospace" font-size="11" fill="white" opacity="0.85">Tron</text>
-<rect x="605" y="368" width="100" height="60" rx="8" fill="#E67E22" filter="url(#shadow)"/>
-<text x="655" y="398" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Index 1</text>
-<rect x="715" y="368" width="45" height="60" rx="8" fill="#E67E22" filter="url(#shadow)"/>
-<text x="737" y="398" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">…N</text>
-<line x1="390" y1="82" x2="390" y2="138" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
-<path d="M 340 193 L 340 225 L 180 225 L 180 253" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
-<path d="M 440 193 L 440 225 L 600 225 L 600 253" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
-<line x1="87" y1="308" x2="87" y2="368" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
-<line x1="215" y1="308" x2="215" y2="368" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
-<line x1="305" y1="308" x2="305" y2="368" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
-<line x1="537" y1="308" x2="537" y2="368" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
-<line x1="655" y1="308" x2="655" y2="368" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
-<line x1="737" y1="308" x2="737" y2="368" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Background -->
+<rect width="940" height="510" fill="#f8f9fa"/>
+
+<!-- Warning note -->
+<rect x="20" y="20" width="230" height="80" rx="6" fill="#F39C12" filter="url(#sh)"/>
+<text x="135" y="44" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="bold" fill="white">&#x26A0;  One master seed</text>
+<text x="135" y="63" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="white">controls all wallets</text>
+<text x="135" y="82" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="white">Back up securely</text>
+
+<!-- Master Seed -->
+<rect x="275" y="20" width="280" height="80" rx="8" fill="#E74C3C" filter="url(#sh)"/>
+<text x="415" y="52" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="bold" fill="white">Master Seed (32 bytes)</text>
+<text x="415" y="76" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, monospace" font-size="11" fill="white" opacity="0.85">stored in KMS / Vault</text>
+
+<!-- Arrow: Master Seed → BIP32 Root -->
+<line x1="415" y1="100" x2="415" y2="155" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- BIP32 Root Key -->
+<rect x="295" y="157" width="240" height="58" rx="8" fill="#2C3E50" filter="url(#sh)"/>
+<text x="415" y="186" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">BIP32 Root Key  m/</text>
+
+<!-- Arrows: BIP32 Root → EVM Path and Tron Path -->
+<path d="M 360 215 L 360 248 L 195 248 L 195 274" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+<path d="M 470 215 L 470 248 L 740 248 L 740 274" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- EVM Path -->
+<rect x="30" y="276" width="330" height="60" rx="8" fill="#3498DB" filter="url(#sh)"/>
+<text x="195" y="297" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="bold" fill="white">EVM  m/44&#x2032;/60&#x2032;/0&#x2032;/0/</text>
+<text x="195" y="319" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, monospace" font-size="11" fill="white" opacity="0.85">Ethereum &#xB7; Arbitrum &#xB7; Base &#xB7; BSC</text>
+
+<!-- Tron Path -->
+<rect x="570" y="276" width="340" height="60" rx="8" fill="#9B59B6" filter="url(#sh)"/>
+<text x="740" y="297" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="bold" fill="white">Tron  m/44&#x2032;/195&#x2032;/0&#x2032;/0/</text>
+<text x="740" y="319" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, monospace" font-size="11" fill="white" opacity="0.85">Tron network</text>
+
+<!-- Arrows: EVM Path → index boxes -->
+<line x1="127" y1="336" x2="127" y2="392" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+<line x1="307" y1="336" x2="307" y2="392" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- Arrows: Tron Path → index boxes -->
+<line x1="670" y1="336" x2="670" y2="392" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+<line x1="855" y1="336" x2="855" y2="392" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- EVM Index 0 -->
+<rect x="20" y="394" width="215" height="95" rx="8" fill="#27AE60" filter="url(#sh)"/>
+<text x="127" y="422" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="bold" fill="white">Index 0</text>
+<text x="127" y="446" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, monospace" font-size="11" fill="white" opacity="0.85">Ethereum &#xB7; Arbitrum</text>
+<text x="127" y="464" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, monospace" font-size="11" fill="white" opacity="0.85">Base &#xB7; BSC</text>
+
+<!-- EVM Index 1…N -->
+<rect x="245" y="394" width="125" height="95" rx="8" fill="#27AE60" filter="url(#sh)"/>
+<text x="307" y="441" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Index 1 &#x2026; N</text>
+
+<!-- Tron Index 0 -->
+<rect x="560" y="394" width="220" height="95" rx="8" fill="#E67E22" filter="url(#sh)"/>
+<text x="670" y="428" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="bold" fill="white">Index 0</text>
+<text x="670" y="453" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, monospace" font-size="11" fill="white" opacity="0.85">Tron (T&#x2026; address)</text>
+
+<!-- Tron Index 1…N -->
+<rect x="790" y="394" width="130" height="95" rx="8" fill="#E67E22" filter="url(#sh)"/>
+<text x="855" y="441" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Index 1 &#x2026; N</text>
+
 </svg>
