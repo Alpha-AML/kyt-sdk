@@ -1,0 +1,29 @@
+flowchart TD
+    Sender(["👤 External Sender"])
+    TrackingWallet(["🏦 Tracking Wallet\n(HD-derived)"])
+    Monitor["🔍 Chain Monitor\n(polls eth_getLogs)"]
+    KYT["⚖️ Alpha AML KYT\nreport-v1 API"]
+    GasReserve(["⛽ Gas Reserve Wallet"])
+    Destination(["🏛️ Destination Wallet"])
+    DB[("💾 SQLite\nState DB")]
+
+    Sender -->|"USDT / USDC Transfer\n(ERC-20 / TRC-20)"| TrackingWallet
+
+    TrackingWallet --> Monitor
+    Monitor -->|"Transfer log detected\nExtract sender from topic[1]"| DB
+    DB -->|"After N confirmations"| KYT
+
+    KYT -->|"score ≤ threshold\n(approved)"| GasReserve
+    GasReserve -->|"Top-up gas\nif balance low"| TrackingWallet
+    TrackingWallet -->|"Forward approved\nstablecoin amount"| Destination
+
+    KYT -->|"score > threshold\n(blocked)"| TrackingWallet
+    TrackingWallet -.->|"Funds held\nuntil manual action"| TrackingWallet
+
+    style Sender fill:#4A90D9,color:#fff
+    style TrackingWallet fill:#F5A623,color:#fff
+    style KYT fill:#7B68EE,color:#fff
+    style Destination fill:#27AE60,color:#fff
+    style GasReserve fill:#E67E22,color:#fff
+    style DB fill:#95A5A6,color:#fff
+    style Monitor fill:#2C3E50,color:#fff

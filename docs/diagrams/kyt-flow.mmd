@@ -1,0 +1,52 @@
+sequenceDiagram
+    participant Chain as Blockchain
+    participant Monitor as Chain Monitor
+    participant DB as SQLite
+    participant KYT as Alpha AML API
+    participant Gas as Gas Manager
+    participant Transfer as Transfer Service
+    participant Dest as Destination Wallet
+    participant Client as Client App
+
+    Chain->>Monitor: New block(s)
+    Monitor->>Chain: eth_getLogs (Transfer events)
+    Chain-->>Monitor: Transfer logs
+
+    Monitor->>DB: INSERT transaction (status: pending_confirmations)
+    Monitor->>Client: emit transaction.detected
+
+    Note over Monitor,DB: Wait for N block confirmations
+
+    Monitor->>DB: UPDATE status → pending_kyt
+    Monitor->>Client: emit transaction.confirmed
+    Monitor->>KYT: GET /api/report-v1?address=SENDER&chain=...
+    Monitor->>Client: emit kyt.checking
+
+    alt score ≤ riskThreshold
+        KYT-->>Monitor: { score: 22, risk_level: "LOW" }
+        Monitor->>DB: UPDATE status → approved
+        Monitor->>Client: emit kyt.passed
+
+        Note over Monitor,DB: Check: all wallet txs resolved?
+        Monitor->>Gas: ensureGas(trackingWallet, chain)
+
+        alt gas balance low
+            Gas->>Chain: send native from reserve
+            Chain-->>Gas: topUp tx confirmed
+            Gas->>Client: emit gas.swept
+        end
+
+        Monitor->>Transfer: transferToken(approved amount)
+        Transfer->>Chain: ERC-20 transfer tx
+        Chain-->>Transfer: tx confirmed
+        Monitor->>DB: UPDATE status → forwarded
+        Monitor->>Client: emit transfer.completed
+        Transfer->>Dest: stablecoin arrives
+
+    else score > riskThreshold
+        KYT-->>Monitor: { score: 85, risk_level: "HIGH" }
+        Monitor->>DB: UPDATE status → blocked
+        Monitor->>Client: emit kyt.blocked
+        Note over DB: Funds remain on tracking wallet
+        Note over Client: Manual transfer required
+    end

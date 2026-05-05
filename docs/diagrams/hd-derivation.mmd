@@ -1,0 +1,29 @@
+flowchart TD
+    Seed["🔑 Master Seed\n(32 bytes hex)\nStored in KMS / Vault"]
+
+    Seed --> BIP32["BIP32 Root Key\nm/"]
+
+    BIP32 --> EVM_PATH["EVM path\nm/44'/60'/0'/0/"]
+    BIP32 --> TRON_PATH["Tron path\nm/44'/195'/0'/0/"]
+
+    EVM_PATH --> EVM0["Index 0\nEthereum / Arbitrum\n/ Base / BSC\n0xABC...123"]
+    EVM_PATH --> EVM1["Index 1\n0xDEF...456"]
+    EVM_PATH --> EVMN["Index N\n0x..."]
+
+    TRON_PATH --> TRON0["Index 0\nTron\nTXYZ...abc"]
+    TRON_PATH --> TRON1["Index 1\nTXYZ...def"]
+    TRON_PATH --> TRONN["Index N\nT..."]
+
+    Note1["⚠️ One master seed\ncontrols all wallets\nBack up securely"]
+
+    style Seed fill:#E74C3C,color:#fff
+    style BIP32 fill:#2C3E50,color:#fff
+    style EVM_PATH fill:#3498DB,color:#fff
+    style TRON_PATH fill:#9B59B6,color:#fff
+    style EVM0 fill:#27AE60,color:#fff
+    style EVM1 fill:#27AE60,color:#fff
+    style EVMN fill:#27AE60,color:#fff
+    style TRON0 fill:#E67E22,color:#fff
+    style TRON1 fill:#E67E22,color:#fff
+    style TRONN fill:#E67E22,color:#fff
+    style Note1 fill:#F39C12,color:#fff
