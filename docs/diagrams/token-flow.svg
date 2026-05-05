@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="700" viewBox="0 0 700 700" xml:space="preserve">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#555"/>
+  </marker>
+  <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+    <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.12"/>
+  </filter>
+</defs>
+<rect width="700" height="700" fill="#f8f9fa"/>
+<rect x="250" y="20" width="200" height="58" rx="8" fill="#4A90D9" filter="url(#shadow)"/>
+<text x="350" y="49" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">External Sender</text>
+<rect x="200" y="138" width="300" height="58" rx="8" fill="#F5A623" filter="url(#shadow)"/>
+<text x="350" y="167" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Tracking Wallet (HD-derived)</text>
+<rect x="200" y="258" width="300" height="58" rx="8" fill="#2C3E50" filter="url(#shadow)"/>
+<text x="350" y="278" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Chain Monitor</text>
+<text x="350" y="298" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, monospace" font-size="11" fill="white" opacity="0.85">extracts sender from topic[1]</text>
+<rect x="200" y="378" width="300" height="58" rx="8" fill="#7B68EE" filter="url(#shadow)"/>
+<text x="350" y="398" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Alpha AML KYT API</text>
+<text x="350" y="418" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, monospace" font-size="11" fill="white" opacity="0.85">GET /api/report-v1</text>
+<rect x="20" y="496" width="195" height="58" rx="8" fill="#E67E22" filter="url(#shadow)"/>
+<text x="117" y="525" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Gas Reserve Wallet</text>
+<rect x="20" y="614" width="195" height="58" rx="8" fill="#27AE60" filter="url(#shadow)"/>
+<text x="117" y="643" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Destination Wallet</text>
+<rect x="485" y="496" width="195" height="58" rx="8" fill="#E74C3C" filter="url(#shadow)"/>
+<text x="582" y="516" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="white">Funds held</text>
+<text x="582" y="536" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, monospace" font-size="11" fill="white" opacity="0.85">status: blocked</text>
+<line x1="350" y1="78" x2="350" y2="138" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="355" y="114" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#666">USDT / USDC Transfer</text>
+<line x1="350" y1="196" x2="350" y2="258" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="350" y1="316" x2="350" y2="378" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="355" y="352" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#666">after N confirmations</text>
+<path d="M 200 407 L 117 407 L 117 496" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="120" y="400" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#666">score ≤ threshold</text>
+<line x1="117" y1="554" x2="117" y2="614" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="122" y="590" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#666">tops up gas then forwards</text>
+<path d="M 500 407 L 582 407 L 582 496" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="505" y="400" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#666">score &gt; threshold</text>
+</svg>
