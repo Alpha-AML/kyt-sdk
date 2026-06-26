@@ -8,16 +8,18 @@ import {
   type Chain,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { mainnet, arbitrum, base, bsc } from 'viem/chains';
+import { mainnet, sepolia, arbitrum, arbitrumSepolia, base, bsc } from 'viem/chains';
 import type { EvmChain, SupportedChain, GasConfig } from '../types.js';
 import { CHAIN_META } from '../config/chains.js';
 import type { SdkEventBus } from '../events/event-bus.js';
 
 const VIEM_CHAINS: Record<EvmChain, Chain> = {
-  ethereum: mainnet,
-  arbitrum: arbitrum,
-  base:     base,
-  bsc:      bsc as unknown as Chain,
+  ethereum:           mainnet,
+  'ethereum-sepolia': sepolia,
+  arbitrum:           arbitrum,
+  'arbitrum-sepolia': arbitrumSepolia,
+  base:               base,
+  bsc:                bsc as unknown as Chain,
 };
 
 export class GasManager {
@@ -81,7 +83,7 @@ export class GasManager {
 
     this.bus.emit('gas.low', { walletId, chain, currentBalance: balance, required: minWei });
 
-    const { walletClient, reserveAddr } = await this.getEvmWalletClient(chain);
+    const { walletClient, account, reserveAddr } = await this.getEvmWalletClient(chain);
 
     // Safety: verify reserve has enough before sending
     const reserveBalance = await client.getBalance({ address: reserveAddr });
@@ -92,11 +94,16 @@ export class GasManager {
       );
     }
 
+    const fees        = await client.estimateFeesPerGas();
+    const maxFeePerGas = fees.maxFeePerGas * 15n / 10n; // 1.5x buffer against stale estimates
+
     const hash = await walletClient.sendTransaction({
-      account: reserveAddr,
-      to:      trackingAddress,
-      value:   topUpWei,
-      chain:   VIEM_CHAINS[chain],
+      account,
+      to:                  trackingAddress as `0x${string}`,
+      value:               topUpWei,
+      chain:               VIEM_CHAINS[chain],
+      maxFeePerGas,
+      maxPriorityFeePerGas: fees.maxPriorityFeePerGas,
     });
 
     await client.waitForTransactionReceipt({ hash, confirmations: 1 });
@@ -152,7 +159,8 @@ export class GasManager {
 
   private async getEvmWalletClient(chain: EvmChain): Promise<{
     walletClient: WalletClient;
-    reserveAddr: Address;
+    account:      ReturnType<typeof privateKeyToAccount>;
+    reserveAddr:  Address;
   }> {
     if (!this.reservePrivKey) {
       const raw = await this.getReserveKey();
@@ -170,7 +178,7 @@ export class GasManager {
       transport: http(rpcUrl),
     });
 
-    return { walletClient, reserveAddr: this.reserveAddress! };
+    return { walletClient, account, reserveAddr: this.reserveAddress! };
   }
 
   private async getTronReserveKey(): Promise<string> {

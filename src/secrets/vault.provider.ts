@@ -28,10 +28,12 @@ export interface VaultSecretsConfig {
    * Field names within the secret object.  Defaults match the .env.example names.
    */
   fields?: {
-    masterSeed?:      string;
-    gasReserveKey?:   string;
-    alphaAmlApiKey?:  string;
-    webhookSecret?:   string;
+    masterSeed?:        string;
+    gasReserveKey?:     string;
+    alphaAmlApiKey?:    string;
+    webhookSecret?:     string;
+    coinsPaidApiKey?:   string;
+    coinsPaidApiSecret?: string;
   };
 }
 
@@ -49,16 +51,21 @@ interface VaultKvResponse {
  */
 export class VaultSecretsProvider implements SecretsProvider {
   private readonly cfg: VaultSecretsConfig;
-  private readonly fields: Required<NonNullable<VaultSecretsConfig['fields']>>;
+  private readonly fields: Required<NonNullable<VaultSecretsConfig['fields']>> & {
+    coinsPaidApiKey:    string;
+    coinsPaidApiSecret: string;
+  };
   private secretCache: Record<string, string> | null = null;
 
   constructor(config: VaultSecretsConfig) {
     this.cfg = config;
     this.fields = {
-      masterSeed:     config.fields?.masterSeed     ?? 'KYT_MASTER_SEED',
-      gasReserveKey:  config.fields?.gasReserveKey  ?? 'KYT_GAS_RESERVE_KEY',
-      alphaAmlApiKey: config.fields?.alphaAmlApiKey ?? 'KYT_ALPHA_AML_API_KEY',
-      webhookSecret:  config.fields?.webhookSecret  ?? 'KYT_WEBHOOK_SECRET',
+      masterSeed:         config.fields?.masterSeed         ?? 'KYT_MASTER_SEED',
+      gasReserveKey:      config.fields?.gasReserveKey      ?? 'KYT_GAS_RESERVE_KEY',
+      alphaAmlApiKey:     config.fields?.alphaAmlApiKey     ?? 'KYT_ALPHA_AML_API_KEY',
+      webhookSecret:      config.fields?.webhookSecret      ?? 'KYT_WEBHOOK_SECRET',
+      coinsPaidApiKey:    config.fields?.coinsPaidApiKey    ?? 'COINSPAID_API_KEY',
+      coinsPaidApiSecret: config.fields?.coinsPaidApiSecret ?? 'COINSPAID_API_SECRET',
     };
   }
 
@@ -76,6 +83,14 @@ export class VaultSecretsProvider implements SecretsProvider {
 
   async getWebhookSecret(): Promise<string> {
     return this.getField(this.fields.webhookSecret);
+  }
+
+  async getCoinsPaidApiKey(): Promise<string> {
+    return this.getField(this.fields.coinsPaidApiKey);
+  }
+
+  async getCoinsPaidApiSecret(): Promise<string> {
+    return this.getField(this.fields.coinsPaidApiSecret);
   }
 
   private async getField(field: string): Promise<string> {

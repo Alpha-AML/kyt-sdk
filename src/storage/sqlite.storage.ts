@@ -17,7 +17,7 @@ interface WalletRow {
   evm_address: string | null;
   tron_address: string | null;
   chains: string;          // JSON
-  destination_address: string;
+  destination_address: string | null;
   risk_threshold: number;
   polling_interval_ms: number;
   label: string | null;
@@ -281,7 +281,7 @@ export class SqliteStorage {
       evmAddress:         r.evm_address ?? undefined,
       tronAddress:        r.tron_address ?? undefined,
       chains:             JSON.parse(r.chains) as SupportedChain[],
-      destinationAddress: r.destination_address,
+      destinationAddress: r.destination_address ?? undefined,
       riskThreshold:      r.risk_threshold,
       pollingIntervalMs:  r.polling_interval_ms,
       label:              r.label ?? undefined,
@@ -311,6 +311,34 @@ export class SqliteStorage {
   }
 
   private migrate(): void {
+    // Drop NOT NULL constraint on destination_address if the old schema exists
+    const col = (this.db
+      .prepare(`SELECT "notnull" FROM pragma_table_info('tracking_wallets') WHERE name = 'destination_address'`)
+      .get() as { notnull: number } | undefined);
+    if (col?.notnull === 1) {
+      this.db.pragma('foreign_keys = OFF');
+      this.db.exec(`
+        DROP TABLE IF EXISTS tracking_wallets_new;
+        CREATE TABLE tracking_wallets_new (
+          id                  TEXT PRIMARY KEY,
+          index_num           INTEGER NOT NULL UNIQUE,
+          evm_address         TEXT,
+          tron_address        TEXT,
+          chains              TEXT NOT NULL,
+          destination_address TEXT,
+          risk_threshold      INTEGER NOT NULL DEFAULT 50,
+          polling_interval_ms INTEGER NOT NULL DEFAULT 60000,
+          label               TEXT,
+          status              TEXT NOT NULL DEFAULT 'active',
+          created_at          INTEGER NOT NULL
+        );
+        INSERT INTO tracking_wallets_new SELECT * FROM tracking_wallets;
+        DROP TABLE tracking_wallets;
+        ALTER TABLE tracking_wallets_new RENAME TO tracking_wallets;
+      `);
+      this.db.pragma('foreign_keys = ON');
+    }
+
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS tracking_wallets (
         id                  TEXT PRIMARY KEY,
@@ -318,7 +346,7 @@ export class SqliteStorage {
         evm_address         TEXT,
         tron_address        TEXT,
         chains              TEXT NOT NULL,
-        destination_address TEXT NOT NULL,
+        destination_address TEXT,
         risk_threshold      INTEGER NOT NULL DEFAULT 50,
         polling_interval_ms INTEGER NOT NULL DEFAULT 60000,
         label               TEXT,

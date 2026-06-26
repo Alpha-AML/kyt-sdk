@@ -23,7 +23,12 @@
     "lint": "tsc --noEmit",
     "example:basic": "tsx examples/basic.ts",
     "example:aws": "tsx examples/aws-kms.ts",
-    "example:vault": "tsx examples/vault.ts"
+    "example:vault": "tsx examples/vault.ts",
+    "init:gas": "tsx examples/init_gas_wallets.ts",
+    "cp:deposit": "tsx examples/coinspaid_deposit.ts",
+    "cp:withdraw": "tsx examples/coinspaid_withdrawal.ts",
+    "cp:check": "tsx examples/coinspaid_check.ts",
+    "manual:transfer": "tsx examples/manual_transfer.ts"
   },
   "dependencies": {
     "@aws-sdk/client-kms": "^3.650.0",

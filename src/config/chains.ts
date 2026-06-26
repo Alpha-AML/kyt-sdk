@@ -23,6 +23,15 @@ export const CHAIN_META: Record<SupportedChain, ChainMeta> = {
     amlChainId: 'ethereum',
     isTron: false,
   },
+  'ethereum-sepolia': {
+    name: 'Ethereum Sepolia',
+    chainId: 11155111,
+    nativeSymbol: 'ETH',
+    defaultMinGasWei: 3_000_000_000_000_000n,   // 0.003 ETH
+    defaultTopUpWei:  10_000_000_000_000_000n,   // 0.01 ETH
+    amlChainId: 'ethereum',                       // AML uses mainnet chain ID
+    isTron: false,
+  },
   arbitrum: {
     name: 'Arbitrum One',
     chainId: 42161,
@@ -30,6 +39,15 @@ export const CHAIN_META: Record<SupportedChain, ChainMeta> = {
     defaultMinGasWei: 100_000_000_000_000n,      // 0.0001 ETH
     defaultTopUpWei:  500_000_000_000_000n,       // 0.0005 ETH
     amlChainId: 'arbitrum',
+    isTron: false,
+  },
+  'arbitrum-sepolia': {
+    name: 'Arbitrum Sepolia',
+    chainId: 421614,
+    nativeSymbol: 'ETH',
+    defaultMinGasWei: 100_000_000_000_000n,      // 0.0001 ETH
+    defaultTopUpWei:  500_000_000_000_000n,       // 0.0005 ETH
+    amlChainId: 'arbitrum',                       // AML uses mainnet chain ID (testnet not separate)
     isTron: false,
   },
   base: {
@@ -60,7 +78,7 @@ export const CHAIN_META: Record<SupportedChain, ChainMeta> = {
   },
 };
 
-export const EVM_CHAINS: EvmChain[] = ['ethereum', 'arbitrum', 'base', 'bsc'];
+export const EVM_CHAINS: EvmChain[] = ['ethereum', 'ethereum-sepolia', 'arbitrum', 'arbitrum-sepolia', 'base', 'bsc'];
 
 export function isEvmChain(chain: SupportedChain): chain is EvmChain {
   return EVM_CHAINS.includes(chain as EvmChain);

@@ -2,7 +2,7 @@
 // Alpha AML KYT SDK — Core Types
 // ============================================================
 
-export type EvmChain = 'ethereum' | 'arbitrum' | 'base' | 'bsc';
+export type EvmChain = 'ethereum' | 'ethereum-sepolia' | 'arbitrum' | 'arbitrum-sepolia' | 'base' | 'bsc';
 export type TronChain = 'tron';
 export type SupportedChain = EvmChain | TronChain;
 
@@ -42,6 +42,10 @@ export interface SecretsProvider {
   getAlphaAmlApiKey(): Promise<string>;
   /** Optional HMAC secret for signing webhook payloads. */
   getWebhookSecret?(): Promise<string>;
+  /** CoinsPaid API key. */
+  getCoinsPaidApiKey?(): Promise<string>;
+  /** CoinsPaid API secret. */
+  getCoinsPaidApiSecret?(): Promise<string>;
 }
 
 // ----------------------------------------------------------
@@ -111,11 +115,12 @@ export interface CreateTrackingWalletOptions {
   /** Chain(s) this wallet should monitor.  Must be a subset of config.chains. */
   chains: SupportedChain[];
   /**
-   * Where approved funds are forwarded.  For EVM-only wallets this is an 0x
-   * address; for a Tron wallet this is a Base58 (T…) address.
-   * If the wallet monitors both EVM and Tron, use separate wallets.
+   * Where approved funds are forwarded after AML passes.  For EVM-only wallets
+   * this is an 0x address; for a Tron wallet this is a Base58 (T…) address.
+   * If omitted, the SDK runs AML and emits kyt.passed but does NOT auto-forward —
+   * the caller is responsible for moving funds via manualTransfer.
    */
-  destinationAddress: string;
+  destinationAddress?: string;
   /**
    * BIP32 derivation index.  When omitted, the SDK auto-increments from the
    * highest existing index.
@@ -137,7 +142,7 @@ export interface TrackingWallet {
   /** Tron address in Base58 format (present when tron is monitored). */
   tronAddress?: string;
   chains: SupportedChain[];
-  destinationAddress: string;
+  destinationAddress?: string;
   riskThreshold: number;
   pollingIntervalMs: number;
   label?: string;

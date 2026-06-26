@@ -7,7 +7,7 @@ import {
   type Address,
   type Chain,
 } from 'viem';
-import { mainnet, arbitrum, base, bsc } from 'viem/chains';
+import { mainnet, sepolia, arbitrum, arbitrumSepolia, base, bsc } from 'viem/chains';
 import type { EvmChain, SupportedChain, DetectedTransaction, TrackingWallet, TokenConfig } from '../types.js';
 import type { SqliteStorage } from '../storage/sqlite.storage.js';
 import type { SdkEventBus } from '../events/event-bus.js';
@@ -18,10 +18,12 @@ const TRANSFER_ABI = parseAbi([
 ]);
 
 const VIEM_CHAINS: Record<EvmChain, Chain> = {
-  ethereum: mainnet,
-  arbitrum: arbitrum,
-  base:     base,
-  bsc:      bsc as unknown as Chain,
+  ethereum:           mainnet,
+  'ethereum-sepolia': sepolia,
+  arbitrum:           arbitrum,
+  'arbitrum-sepolia': arbitrumSepolia,
+  base:               base,
+  bsc:                bsc as unknown as Chain,
 };
 
 export interface EvmMonitorCallbacks {

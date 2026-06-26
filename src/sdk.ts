@@ -313,7 +313,7 @@ export class KytSDK {
         this.storage.updateTransactionStatus(tx.id, 'approved', { kytScore: score, kytResponse: report });
         this.emitEvent('kyt.passed', { transaction: tx, score, report });
         await this.dispatchWebhook('kyt.passed', { transaction: tx, score, report });
-        await this.tryForwardFunds(wallet);
+        if (wallet.destinationAddress) await this.tryForwardFunds(wallet);
       }
     } catch (err) {
       this.emitEvent('error', {
@@ -385,15 +385,13 @@ export class KytSDK {
   ): Promise<void> {
     const { chain, tokenAddress, tokenSymbol, totalAmount } = group;
 
+    const destination = wallet.destinationAddress!;
+
     this.emitEvent('transfer.initiated', {
-      walletId:    wallet.id,
-      chain,
-      token:       tokenSymbol,
-      amount:      totalAmount,
-      destination: wallet.destinationAddress,
+      walletId: wallet.id, chain, token: tokenSymbol, amount: totalAmount, destination,
     });
     await this.dispatchWebhook('transfer.initiated', {
-      walletId: wallet.id, chain, token: tokenSymbol, amount: totalAmount, destination: wallet.destinationAddress,
+      walletId: wallet.id, chain, token: tokenSymbol, amount: totalAmount, destination,
     });
 
     let txHash: string;
@@ -401,7 +399,7 @@ export class KytSDK {
     if (chain === 'tron') {
       if (!this.tronTransfer || !wallet.tronAddress) throw new Error('Tron not configured');
       const privKey = this.hdWallet.deriveTron(wallet.index).privateKey;
-      txHash = await this.tronTransfer.transferToken(privKey, tokenAddress, wallet.destinationAddress, totalAmount);
+      txHash = await this.tronTransfer.transferToken(privKey, tokenAddress, destination, totalAmount);
     } else {
       if (!wallet.evmAddress) throw new Error('EVM address not set');
       // Ensure gas before sending
@@ -412,7 +410,7 @@ export class KytSDK {
         chain as EvmChain,
         privKey,
         tokenAddress as `0x${string}`,
-        wallet.destinationAddress as `0x${string}`,
+        destination as `0x${string}`,
         totalAmount,
       );
     }
@@ -441,14 +439,17 @@ export class KytSDK {
     if (tokenAddress) {
       const tokens = this.chainTokens[chain] ?? [];
       const token  = findToken(chain, tokenAddress, tokens);
+      const resolvedAmount = amount ?? await this.evmTransfer.getTokenBalance(
+        chain, tokenAddress as `0x${string}`, fromAddr as `0x${string}`,
+      );
       const txHash = await this.evmTransfer.transferToken(
         chain,
         privKey,
         tokenAddress as `0x${string}`,
         toAddress as `0x${string}`,
-        amount,
+        resolvedAmount,
       );
-      return { txHash, amount: amount ?? 0n, tokenSymbol: token?.symbol ?? 'ERC20', chain };
+      return { txHash, amount: resolvedAmount, tokenSymbol: token?.symbol ?? 'ERC20', chain };
     }
 
     const txHash = await this.evmTransfer.transferNative(chain, privKey, toAddress as `0x${string}`, amount);
@@ -469,8 +470,11 @@ export class KytSDK {
     if (tokenAddress) {
       const tokens = this.chainTokens['tron'] ?? [];
       const token  = findToken('tron', tokenAddress, tokens);
-      const txHash = await this.tronTransfer.transferToken(privKey, tokenAddress, toAddress, amount);
-      return { txHash, amount: amount ?? 0n, tokenSymbol: token?.symbol ?? 'TRC20', chain: 'tron' };
+      const resolvedAmount = amount ?? await this.tronTransfer.getTokenBalanceByKey(
+        privKey, tokenAddress, derived.address,
+      );
+      const txHash = await this.tronTransfer.transferToken(privKey, tokenAddress, toAddress, resolvedAmount);
+      return { txHash, amount: resolvedAmount, tokenSymbol: token?.symbol ?? 'TRC20', chain: 'tron' };
     }
 
     const txHash = await this.tronTransfer.transferNative(privKey, toAddress, amount);
@@ -547,22 +551,20 @@ export class KytSDK {
         throw new Error(`Chain "${chain}" is not configured in KytSdkConfig.chains`);
       }
     }
-    if (!options.destinationAddress) {
-      throw new Error('destinationAddress is required');
-    }
-
-    // Validate destination address format matches chain type
+    // Validate destination address format only when provided
     const hasEvm  = options.chains.some(isEvmChain);
     const hasTron = options.chains.includes('tron');
-    if (hasEvm && !isAddress(options.destinationAddress, { strict: false }) && !hasTron) {
-      throw new Error(
-        `destinationAddress "${options.destinationAddress}" is not a valid EVM address for chains: ${options.chains.join(', ')}`,
-      );
-    }
-    if (hasTron && !options.destinationAddress.startsWith('T') && !hasEvm) {
-      throw new Error(
-        `destinationAddress "${options.destinationAddress}" does not appear to be a valid Tron address (must start with T)`,
-      );
+    if (options.destinationAddress) {
+      if (hasEvm && !isAddress(options.destinationAddress, { strict: false }) && !hasTron) {
+        throw new Error(
+          `destinationAddress "${options.destinationAddress}" is not a valid EVM address for chains: ${options.chains.join(', ')}`,
+        );
+      }
+      if (hasTron && !options.destinationAddress.startsWith('T') && !hasEvm) {
+        throw new Error(
+          `destinationAddress "${options.destinationAddress}" does not appear to be a valid Tron address (must start with T)`,
+        );
+      }
     }
 
     if (options.index !== undefined) {

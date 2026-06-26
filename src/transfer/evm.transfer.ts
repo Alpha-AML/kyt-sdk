@@ -9,7 +9,7 @@ import {
   type Chain,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { mainnet, arbitrum, base, bsc } from 'viem/chains';
+import { mainnet, sepolia, arbitrum, arbitrumSepolia, base, bsc } from 'viem/chains';
 import type { EvmChain } from '../types.js';
 
 const ERC20_ABI = parseAbi([
@@ -18,10 +18,12 @@ const ERC20_ABI = parseAbi([
 ]);
 
 const VIEM_CHAINS: Record<EvmChain, Chain> = {
-  ethereum: mainnet,
-  arbitrum: arbitrum,
-  base:     base,
-  bsc:      bsc as unknown as Chain,
+  ethereum:           mainnet,
+  'ethereum-sepolia': sepolia,
+  arbitrum:           arbitrum,
+  'arbitrum-sepolia': arbitrumSepolia,
+  base:               base,
+  bsc:                bsc as unknown as Chain,
 };
 
 export class EvmTransferService {
@@ -54,13 +56,18 @@ export class EvmTransferService {
     const actualAmount = amount ?? (await this.getTokenBalance(chain, tokenAddress, account.address));
     if (actualAmount === 0n) throw new Error('Transfer amount is zero');
 
+    const fees        = await client.estimateFeesPerGas();
+    const maxFeePerGas = fees.maxFeePerGas * 15n / 10n; // 1.5x buffer against stale estimates
+
     const hash = await wc.writeContract({
-      address:      tokenAddress,
-      abi:          ERC20_ABI,
-      functionName: 'transfer',
-      args:         [toAddress, actualAmount],
+      address:             tokenAddress,
+      abi:                 ERC20_ABI,
+      functionName:        'transfer',
+      args:                [toAddress, actualAmount],
       account,
-      chain:        VIEM_CHAINS[chain],
+      chain:               VIEM_CHAINS[chain],
+      maxFeePerGas,
+      maxPriorityFeePerGas: fees.maxPriorityFeePerGas,
     });
 
     await client.waitForTransactionReceipt({ hash, confirmations: 1 });
@@ -81,13 +88,15 @@ export class EvmTransferService {
     const wc      = this.buildWalletClient(chain, privateKey);
     const account = privateKeyToAccount(privateKey);
 
+    const fees        = await client.estimateFeesPerGas();
+    const maxFeePerGas = fees.maxFeePerGas * 15n / 10n; // 1.5x buffer against stale estimates
+
     let value: bigint;
     if (amount !== undefined) {
       value = amount;
     } else {
-      const balance  = await client.getBalance({ address: account.address });
-      const gasPrice = await client.getGasPrice();
-      const gasCost  = gasPrice * 21_000n;
+      const balance = await client.getBalance({ address: account.address });
+      const gasCost = maxFeePerGas * 21_000n; // conservative upper bound for ETH send
       if (balance <= gasCost) throw new Error('Insufficient native balance to cover gas');
       value = balance - gasCost;
     }
@@ -96,9 +105,11 @@ export class EvmTransferService {
 
     const hash = await wc.sendTransaction({
       account,
-      to:    toAddress,
+      to:                  toAddress,
       value,
-      chain: VIEM_CHAINS[chain],
+      chain:               VIEM_CHAINS[chain],
+      maxFeePerGas,
+      maxPriorityFeePerGas: fees.maxPriorityFeePerGas,
     });
 
     await client.waitForTransactionReceipt({ hash, confirmations: 1 });
