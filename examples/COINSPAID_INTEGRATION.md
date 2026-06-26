@@ -4,11 +4,11 @@ Three-layer B2B stablecoin payment flow built on top of the KYT SDK.
 
 ```
 User
-  └─→  Buffer Wallet 1  →  AML check  →  CoinsPaid     (Layer 2 — cp:deposit)
+  └─→  Buffer Wallet 1  →  AML check  →  CoinsPaid     (Layer 1 — cp:deposit)
                                               │
                                               ▼
                                          Buffer Wallet 2  →  AML check  →  Destination
-                                                                            (Layer 3 — cp:withdraw)
+                                                                            (Layer 2 — cp:withdraw)
 ```
 
 Each layer runs an independent AML check. Funds stay on the buffer wallet on any error — they are never lost.
@@ -116,7 +116,7 @@ Sends webhook event: `gas_wallet_ready`
 
 ---
 
-### `cp:deposit` — Layer 2: Receive User Deposit → Forward to CoinsPaid
+### `cp:deposit` — Layer 1: Receive User Deposit → Forward to CoinsPaid
 
 Creates a buffer wallet, gives the user a deposit address, monitors for incoming stablecoins, runs AML, and forwards passing funds to a CoinsPaid address.
 
@@ -154,9 +154,11 @@ After deposit is confirmed run:
 
 **Other errors (gas, SDK):** funds stay on buffer wallet 1 and a recovery command is printed. The error is also posted to `PAYMENT_WEBHOOK_URL`.
 
+Sends webhook events: `deposit_address_ready`, `deposit_detected`, `aml_passed`, `aml_blocked`, `coinspaid_forwarded`, `coinspaid_deposit_confirmed`, `error`
+
 ---
 
-### `cp:withdraw` — Layer 3: Withdraw from CoinsPaid → Final Destination
+### `cp:withdraw` — Layer 2: Withdraw from CoinsPaid → Final Destination
 
 Initiates a CoinsPaid withdrawal to a second buffer wallet, runs AML on the CoinsPaid sender address, then forwards to the final destination.
 
@@ -184,6 +186,8 @@ npm run cp:withdraw -- \
 Only the expected token (derived from the CoinsPaid currency code) is processed. Any unexpected tokens arriving on the buffer wallet are silently ignored.
 
 **Error policy:** on any error funds stay on buffer wallet 2. A recovery command is printed and posted to `PAYMENT_WEBHOOK_URL`.
+
+Sends webhook events: `coinspaid_withdrawal_initiated`, `l2_deposit_detected`, `aml_passed`, `aml_blocked`, `transfer_completed`, `error`
 
 ---
 
@@ -219,7 +223,7 @@ Sends webhook events: `manual_transfer_completed` per token, `error/manual_trans
 
 All events are POSTed as JSON. Every payload includes a `timestamp` (ISO 8601) field.
 
-### Deposit flow (Layer 2)
+### Deposit flow (Layer 1 — cp:deposit)
 
 | `event` | When |
 |---------|------|
@@ -231,13 +235,13 @@ All events are POSTed as JSON. Every payload includes a `timestamp` (ISO 8601) f
 | `coinspaid_deposit_confirmed` | CoinsPaid webhook confirmed receipt |
 | `error` | Any failure — includes `error_type`, `message`, recovery address |
 
-### Withdrawal flow (Layer 3)
+### Withdrawal flow (Layer 2 — cp:withdraw)
 
 | `event` | When |
 |---------|------|
 | `coinspaid_withdrawal_initiated` | CoinsPaid withdrawal to buffer wallet 2 started |
-| `l3_deposit_detected` | Funds arrived at buffer wallet 2 from CoinsPaid |
-| `aml_passed` | AML score below threshold (`layer: "L3"`) |
+| `l2_deposit_detected` | Funds arrived at buffer wallet 2 from CoinsPaid |
+| `aml_passed` | AML score below threshold (`layer: "L2"`) |
 | `aml_blocked` | AML score above threshold — funds held on buffer wallet 2 |
 | `transfer_completed` | Funds forwarded from buffer wallet 2 → destination |
 | `error` | Any failure — includes `error_type`, `message`, recovery address |
@@ -260,8 +264,10 @@ All payloads are POSTed as `application/json`. Every object includes `timestamp`
 ```json
 {
   "event": "deposit_address_ready",
+  "message": "Client should deposit here",
   "wallet_address": "0xBufferWallet1",
   "chain": "ethereum-sepolia",
+  "tokens": [{ "symbol": "USDT", "address": "0x7169D38820dfd117C3FA1f22a697dBA58d90BA06" }],
   "expected_amount": 100,
   "customer_id": "cust-0x1234",
   "timestamp": "2025-01-15T10:00:00.000Z"
@@ -315,10 +321,10 @@ All payloads are POSTed as `application/json`. Every object includes `timestamp`
 {
   "event": "coinspaid_forwarded",
   "tx_hash": "0xdef456...",
-  "amount": "100.0 USDT",
-  "token": "USDT",
   "coinspaid_address": "0xCoinsPaidDepositAddress",
   "cp_currency": "USDTE",
+  "token": "USDT",
+  "amount": "100.0 USDT",
   "customer_id": "cust-0x1234",
   "timestamp": "2025-01-15T10:03:00.000Z"
 }
@@ -351,10 +357,10 @@ All payloads are POSTed as `application/json`. Every object includes `timestamp`
 }
 ```
 
-**`l3_deposit_detected`**
+**`l2_deposit_detected`**
 ```json
 {
-  "event": "l3_deposit_detected",
+  "event": "l2_deposit_detected",
   "tx_hash": "0xghi789...",
   "amount": "100.0 USDT",
   "token": "USDT",

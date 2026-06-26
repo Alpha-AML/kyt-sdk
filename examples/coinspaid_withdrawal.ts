@@ -268,13 +268,13 @@ sdk.on('transaction.detected', ({ transaction }) => {
   if (!isExpectedToken(transaction.tokenSymbol)) return;
   const tokenCfg = ALL_CHAIN_TOKENS.find(t => t.symbol === transaction.tokenSymbol);
   if (!tokenCfg) return;
-  console.log(`\n[STEP 3]    Deposit detected on Layer 3 (from CoinsPaid withdrawal)`);
-  console.log(`[L3 IN]     ${fmtTokenAmount(transaction.amount, tokenCfg.decimals, tokenCfg.symbol)}`);
+  console.log(`\n[STEP 2]    Deposit detected on Layer 2 (from CoinsPaid withdrawal)`);
+  console.log(`[L2 IN]     ${fmtTokenAmount(transaction.amount, tokenCfg.decimals, tokenCfg.symbol)}`);
   console.log(`            tx     : ${transaction.txHash}`);
   console.log(`            sender : ${transaction.sender}`);
   console.log(`            Running AML check on CoinsPaid sender...`);
   void postWebhook({
-    event:       'l3_deposit_detected',
+    event:       'l2_deposit_detected',
     tx_hash:     transaction.txHash,
     amount:      fmtTokenAmount(transaction.amount, tokenCfg.decimals, tokenCfg.symbol),
     token:       tokenCfg.symbol,
@@ -288,12 +288,12 @@ sdk.on('transaction.confirmed', ({ transaction }) => {
   if (transaction.chain !== chain) return;
   if (!isExpectedToken(transaction.tokenSymbol)) return;
   if (doneWallets.has(transaction.walletId)) return;
-  console.log(`\n[L3 CONFIRMED]  tx confirmed (${transaction.txHash})`);
+  console.log(`\n[L2 CONFIRMED]  tx confirmed (${transaction.txHash})`);
   console.log(`                AML check running on CoinsPaid sender...`);
 });
 
 sdk.on('kyt.checking', ({ sender }) => {
-  console.log(`[AML L3]    Checking CoinsPaid address: ${sender}`);
+  console.log(`[AML L2]    Checking CoinsPaid address: ${sender}`);
 });
 
 sdk.on('kyt.passed', ({ transaction, score, report }) => {
@@ -302,11 +302,11 @@ sdk.on('kyt.passed', ({ transaction, score, report }) => {
   const amt = tokenCfg
     ? fmtTokenAmount(transaction.amount, tokenCfg.decimals, tokenCfg.symbol)
     : `${transaction.amount} raw`;
-  console.log(`[AML L3 PASS]  Score ${score} / ${report.risk_assessment.score_max} — ${report.risk_assessment.risk_level}`);
+  console.log(`[AML L2 PASS]  Score ${score} / ${report.risk_assessment.score_max} — ${report.risk_assessment.risk_level}`);
   console.log(`            ${amt} — forwarding to destination wallet (${args.destination})`);
   void postWebhook({
     event:       'aml_passed',
-    layer:       'L3',
+    layer:       'L2',
     score,
     risk_level:  report.risk_assessment.risk_level,
     tx_hash:     transaction.txHash,
@@ -317,13 +317,13 @@ sdk.on('kyt.passed', ({ transaction, score, report }) => {
 sdk.on('kyt.blocked', ({ transaction, score, report }) => {
   if (!isExpectedToken(transaction.tokenSymbol)) return;
   sdk.pauseTrackingWallet(transaction.walletId);
-  console.warn(`\n[AML L3 BLOCK]  Score ${score} / ${report.risk_assessment.score_max} — FLAGGED`);
+  console.warn(`\n[AML L2 BLOCK]  Score ${score} / ${report.risk_assessment.score_max} — FLAGGED`);
   console.warn(`              Risk     : ${report.risk_assessment.risk_level}`);
   if (report.risk_assessment.blacklist_note) {
     console.warn(`              Note     : ${report.risk_assessment.blacklist_note}`);
   }
   const w2addr = chain === 'tron' ? wallet2?.tronAddress : wallet2?.evmAddress;
-  errorBox('Layer 3 AML block — manual review required', [
+  errorBox('Layer 2 AML block — manual review required', [
     `Buffer Wallet 2 : ${w2addr ?? 'unknown'}`,
     `Score           : ${score} / ${report.risk_assessment.score_max}`,
     `Funds are SAFE on buffer wallet 2.`,
@@ -332,7 +332,7 @@ sdk.on('kyt.blocked', ({ transaction, score, report }) => {
   ]);
   void postWebhook({
     event:        'aml_blocked',
-    layer:        'L3',
+    layer:        'L2',
     score,
     risk_level:   report.risk_assessment.risk_level,
     tx_hash:      transaction.txHash,
@@ -359,7 +359,7 @@ sdk.on('transfer.initiated', ({ token, amount, destination }) => {
   if (!isExpectedToken(token)) return;
   const tokenCfg = ALL_CHAIN_TOKENS.find(t => t.symbol === token);
   const decimals = tokenCfg?.decimals ?? 6;
-  console.log(`\n[L3 OUT]    ${fmtTokenAmount(amount, decimals, token)} → ${destination}`);
+  console.log(`\n[L2 OUT]    ${fmtTokenAmount(amount, decimals, token)} → ${destination}`);
 });
 
 sdk.on('transfer.completed', async ({ walletId, chain: c, txHash, token, amount }) => {
@@ -368,7 +368,7 @@ sdk.on('transfer.completed', async ({ walletId, chain: c, txHash, token, amount 
   const tokenCfg = ALL_CHAIN_TOKENS.find(t => t.symbol === token);
   const decimals = tokenCfg?.decimals ?? 6;
   const humanAmt = fmtTokenAmount(amount, decimals, token);
-  console.log(`\n[L3 OUT]    Delivered ${humanAmt} to destination wallet`);
+  console.log(`\n[L2 OUT]    Delivered ${humanAmt} to destination wallet`);
   console.log(`            tx                 : ${txHash}`);
   console.log(`            Destination wallet : ${args.destination}`);
   cpStorage.updatePaymentStatus(cpRecord.id, 'completed');
@@ -486,7 +486,7 @@ try {
   wallet2 = await sdk.createTrackingWallet({
     chains:             [chain],
     destinationAddress: args.destination,
-    label:              'L3-coinspaid-withdrawal',
+    label:              'L2-coinspaid-withdrawal',
     riskThreshold:      args.threshold,
   });
   wallet2Address = chain === 'tron' ? wallet2.tronAddress! : wallet2.evmAddress!;

@@ -280,7 +280,8 @@ async function createCoinsPaidAndForward(
       event:             'coinspaid_forwarded',
       tx_hash:           result.txHash,
       coinspaid_address: cpAddr.address,
-      currency:          cpCurrency,
+      cp_currency:       cpCurrency,
+      token:             tokenSymbol,
       amount:            fmtTokenAmount(amount, tokenCfg.decimals, tokenSymbol),
       customer_id:       cpRecord.customer_id,
     });
@@ -600,7 +601,7 @@ async function handleCoinsPaidWebhook(payload: CoinsPaidWebhookPayload): Promise
   await postWebhook({
     event:             'coinspaid_deposit_confirmed',
     amount,
-    currency,
+    cp_currency:       currency,
     coinspaid_address: coinspaidDepositAddr,
     customer_id:       cpRecord.customer_id,
   });
@@ -612,7 +613,7 @@ async function handleCoinsPaidWebhook(payload: CoinsPaidWebhookPayload): Promise
   console.log(`              --amount ${amount} \\`);
   console.log(`              --chain ${cpRecord.chain} \\`);
   console.log(`              --confirmations ${args.confirmations ?? 20}`);
-  console.log(`\n[DONE]      Layer 2 complete.`);
+  console.log(`\n[DONE]      Layer 1 complete.`);
 
   if (gasWalletAddress) {
     await sweepNativeToGasWallet(args.chain, gasWalletAddress);
@@ -728,7 +729,7 @@ webhookServer = startWebhookServer();
 const depositAddress = args.chain === 'tron' ? wallet1.tronAddress : wallet1.evmAddress;
 
 console.log('\n╔══════════════════════════════════════════════════════════════════╗');
-console.log('║     B2B Payment — Layer 1 + 2  (Deposit → CoinsPaid)           ║');
+console.log('║     B2B Payment — Layer 1  (Deposit → CoinsPaid)               ║');
 console.log('╚══════════════════════════════════════════════════════════════════╝\n');
 console.log(`  Chain           : ${meta.name}`);
 console.log(`  Accepted tokens : ${TRACKED_TOKENS.map(t => t.symbol).join(', ')}`);
@@ -736,12 +737,12 @@ console.log(`  Expected amount : ${fmtUsd(EXPECTED_USD_MICRO)}`);
 console.log(`  Risk threshold  : ${args.threshold}`);
 console.log(`  Customer ID     : ${args.customerId}`);
 if (args.label) console.log(`  Label           : ${args.label}`);
-console.log(`\n  ┌─ Step 1 ─ Layer 1: User Deposit Buffer`);
+console.log(`\n  ┌─ Step 1 — Buffer Wallet`);
 console.log(`  │   Wallet ID      : ${wallet1.id}`);
 console.log(`  │   DEPOSIT HERE → : ${depositAddress}`);
 console.log(`  │   Flow           : deposit → AML check → gas check → proceed`);
 console.log(`  │`);
-console.log(`  └─ Step 2 ─ Layer 2: CoinsPaid`);
+console.log(`  └─ Step 2 — CoinsPaid`);
 console.log(`      Address        : created per-token after Step 1 completes`);
 console.log(`      Flow           : create address → receive funds → webhook → print cp:withdraw`);
 console.log('\nMonitoring for incoming transfers. Press Ctrl+C to stop.\n');
@@ -749,7 +750,7 @@ console.log('\nMonitoring for incoming transfers. Press Ctrl+C to stop.\n');
 void postWebhook({
   event:           'deposit_address_ready',
   message:         'Client should deposit here',
-  address:         depositAddress,
+  wallet_address:  depositAddress,
   chain:           args.chain,
   tokens:          TRACKED_TOKENS.map(t => ({ symbol: t.symbol, address: t.address })),
   expected_amount: args.expectedAmount,
