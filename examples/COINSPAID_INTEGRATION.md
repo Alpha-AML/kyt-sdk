@@ -112,7 +112,7 @@ Gas reserve wallets
 
 Fund the wallets for every chain you intend to use. The gas manager tops up buffer wallets automatically from here before each forward transaction.
 
-Sends webhook event: `gas_wallet_ready`
+**Sends webhook event:** `gas_wallet_ready`
 
 ---
 
@@ -154,7 +154,7 @@ After deposit is confirmed run:
 
 **Other errors (gas, SDK):** funds stay on buffer wallet 1 and a recovery command is printed. The error is also posted to `PAYMENT_WEBHOOK_URL`.
 
-Sends webhook events: `deposit_address_ready`, `deposit_detected`, `aml_passed`, `aml_blocked`, `coinspaid_forwarded`, `coinspaid_deposit_confirmed`, `error`
+**Sends webhook events:** `deposit_address_ready`, `deposit_detected`, `aml_passed`, `aml_blocked`, `coinspaid_forwarded`, `coinspaid_deposit_confirmed`, `error`
 
 ---
 
@@ -187,7 +187,7 @@ Only the expected token (derived from the CoinsPaid currency code) is processed.
 
 **Error policy:** on any error funds stay on buffer wallet 2. A recovery command is printed and posted to `PAYMENT_WEBHOOK_URL`.
 
-Sends webhook events: `coinspaid_withdrawal_initiated`, `l2_deposit_detected`, `aml_passed`, `aml_blocked`, `transfer_completed`, `error`
+**Sends webhook events:** `coinspaid_withdrawal_initiated`, `l2_deposit_detected`, `aml_passed`, `aml_blocked`, `transfer_completed`, `error`
 
 ---
 
@@ -215,7 +215,7 @@ npm run manual:transfer -- \
 
 After a successful transfer (or if the wallet is already empty) the wallet is marked `paused` in the database and will not be reloaded on the next run.
 
-Sends webhook events: `manual_transfer_completed` per token, `error/manual_transfer_failed` on failure.
+**Sends webhook events:** `manual_transfer_completed` per token, `error/manual_transfer_failed` on failure.
 
 ---
 
